@@ -1002,6 +1002,9 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                 if sensor['temp_sensor_type'] in ["11", "22", "2302"]:
                     temp, hum = self.read_dht_temp(sensor['temp_sensor_type'], sensor['gpio_pin'])
                     airquality = 0
+                elif sensor['temp_sensor_type'] =="serial":
+                    temp, hum = self.read_serial_temp(sensor['temp_sensor_type'], sensor['gpio_pin'])
+                    airquality = 0
                 elif sensor['temp_sensor_type'] == "20":
                     temp, hum = self.read_dht20_temp(sensor['temp_sensor_address'], sensor['temp_sensor_i2cbus'])
                     airquality = 0
@@ -1140,6 +1143,27 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
     def read_dht_temp(self, sensor, pin):
         try:
             script = os.path.dirname(os.path.realpath(__file__)) + "/getDHTTemp.py "
+            if self._settings.get(["use_sudo"]):
+                sudo_str = "sudo "
+            else:
+                sudo_str = ""
+            cmd = sudo_str + "python3 " + script + str(sensor) + " " + str(pin)
+            if  self._settings.get(["debug_temperature_log"]) is True:
+                self._logger.debug("Temperature dht cmd: %s", cmd)
+            stdout = (Popen(cmd, shell=True, stdout=PIPE).stdout).read()
+            if  self._settings.get(["debug_temperature_log"]) is True:
+                self._logger.debug("Dht result: %s", stdout)
+            temp, hum = stdout.decode("utf-8").split("|")
+            return (self.to_float(temp.strip()), self.to_float(hum.strip()))
+        except Exception as ex:
+            self._logger.info(
+                "Failed to execute python scripts, try disabling use SUDO on advanced section of the plugin.")
+            self.log_error(ex)
+            return (0, 0)
+                
+    def read_serial_temp(self, sensor, pin):
+        try:
+            script = os.path.dirname(os.path.realpath(__file__)) + "/getSerialTemp.py "
             if self._settings.get(["use_sudo"]):
                 sudo_str = "sudo "
             else:
