@@ -1003,7 +1003,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                     temp, hum = self.read_dht_temp(sensor['temp_sensor_type'], sensor['gpio_pin'])
                     airquality = 0
                 elif sensor['temp_sensor_type'] =="serial":
-                    temp, hum = self.read_serial_temp(sensor['temp_sensor_type'], sensor['gpio_pin'])
+                    temp, hum = self.read_serial_temp(sensor['temp_sensor_type'], sensor['USB_serial'])
                     airquality = 0
                 elif sensor['temp_sensor_type'] == "20":
                     temp, hum = self.read_dht20_temp(sensor['temp_sensor_address'], sensor['temp_sensor_i2cbus'])
@@ -1631,14 +1631,17 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                     self._logger.info("Adding PRINTER CONTROL event detect on pin %s with edge: %s", gpio_pin, edge)
             
             for rpi_input in list(filter(lambda item: item['input_type'] == 'temperature_sensor', self.rpi_inputs)):
-                gpio_pin = self.to_int(rpi_input['gpio_pin'])
-                if rpi_input['input_pull_resistor'] == 'input_pull_up':
-                    pull_resistor = GPIO.PUD_UP
-                elif rpi_input['input_pull_resistor'] == 'input_pull_down':
-                    pull_resistor = GPIO.PUD_DOWN
-                else:
-                    pull_resistor = GPIO.PUD_OFF
-                GPIO.setup(gpio_pin, GPIO.IN, pull_up_down=pull_resistor)
+                if item['temp_sensor_type'] == 'serial':
+
+                else: 
+                    gpio_pin = self.to_int(rpi_input['gpio_pin'])
+                    if rpi_input['input_pull_resistor'] == 'input_pull_up':
+                        pull_resistor = GPIO.PUD_UP
+                    elif rpi_input['input_pull_resistor'] == 'input_pull_down':
+                        pull_resistor = GPIO.PUD_DOWN
+                    else:
+                        pull_resistor = GPIO.PUD_OFF
+                    GPIO.setup(gpio_pin, GPIO.IN, pull_up_down=pull_resistor)
         except Exception as ex:
             self.log_error(ex)
 
