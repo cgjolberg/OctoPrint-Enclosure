@@ -9,7 +9,7 @@ pin = sys.argv[2]
 
 # Assuming your device appears as /dev/ttyUSB0 on the Raspberry Pi
 # Adjust the port and baud rate as necessary
-ser = serial.Serial('/dev/'+ pin, 115200, timeout=1)
+ser = serial.Serial('/dev/ttyACM1', 115200, timeout=1)
 ser.flush()
 
 def get_serial_value():
