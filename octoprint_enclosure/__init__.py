@@ -1631,7 +1631,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                     self._logger.info("Adding PRINTER CONTROL event detect on pin %s with edge: %s", gpio_pin, edge)
             
             for rpi_input in list(filter(lambda item: item['input_type'] == 'temperature_sensor', self.rpi_inputs)):
-                if item['temp_sensor_type'] == 'serial':
+                if rpi_input['temp_sensor_type'] == 'serial':
                     pass
                 else: 
                     gpio_pin = self.to_int(rpi_input['gpio_pin'])
