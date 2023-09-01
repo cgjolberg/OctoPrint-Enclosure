@@ -1174,6 +1174,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
             stdout = (Popen(cmd, shell=True, stdout=PIPE).stdout).read()
             if  self._settings.get(["debug_temperature_log"]) is True:
                 self._logger.debug("Dht result: %s", stdout)
+            self._logger.warning("Unexpected output from getSerialTemp.py: %s", stdout)
             temp, hum = stdout.decode("utf-8").split("|")
             return (self.to_float(temp.strip()), self.to_float(hum.strip()))
         except Exception as ex:

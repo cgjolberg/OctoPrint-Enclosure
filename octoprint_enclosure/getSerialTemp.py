@@ -23,6 +23,7 @@ def get_serial_value():
 def main():
     try:
         temperature, humidity = get_serial_value()
+        #self._logger.warning("Unexpected output from getSerialTemp.py: %s", stdout)
         print('{0:0.1f} | {1:0.1f}'.format(temperature, humidity))
     except:
         print('-1 | -1')
