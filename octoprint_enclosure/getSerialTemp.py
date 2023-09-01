@@ -3,30 +3,48 @@ import sys
 import time
 
 class SerialError(Exception):
-    """ Bast class for exception """
+    """ Base class for exception """
 
 pin = sys.argv[2]
 
-# Assuming your device appears as /dev/ttyUSB0 on the Raspberry Pi
-# Adjust the port and baud rate as necessary
-ser = serial.Serial('/dev/ttyACM1', 115200, timeout=1)
+ser = serial.Serial('/dev/'+ pin, 115200, timeout=5)  # Changed port to '/dev/ttyACM2' and timeout to 5 seconds for consistency
 ser.flush()
+time.sleep(1)
 
 def get_serial_value():
-    if ser.in_waiting > 0:
-        line = ser.readline().decode('utf-8').strip()
-        temperature, humidity = map(float, line.split(','))
-        return temperature, humidity
-    else:
-        raise SerialError('No serial data available')
+    start_time = time.time()
+    valid_line_count = 0
+
+    while time.time() - start_time < 5:  # poll for 5 seconds
+        if ser.in_waiting > 0:
+            line = ser.readline().decode('utf-8').strip()
+            print(f"Raw Data: {line}")  # print raw data for debug purposes
+
+            try:
+                temperature, humidity = line.split(',')
+                # Convert the temperature and humidity values to float
+                temperature_float = float(temperature)
+                humidity_float = float(humidity)
+                
+                valid_line_count += 1
+                if valid_line_count == 5:
+                    return temperature_float, humidity_float
+            except ValueError:
+                print(f"Unable to process line: {line}")
+
+    raise SerialError('No valid 5th line received in 5 seconds')
 
 def main():
     try:
         temperature, humidity = get_serial_value()
-        #self._logger.warning("Unexpected output from getSerialTemp.py: %s", stdout)
         print('{0:0.1f} | {1:0.1f}'.format(temperature, humidity))
-    except:
+    except SerialError as e:
+        print(f"Error: {e}")
+        print('-1 | -1')
+    except Exception as e:
+        print(f"Error: {e}")
         print('-1 | -1')
 
 if __name__ == "__main__":
     main()
+
