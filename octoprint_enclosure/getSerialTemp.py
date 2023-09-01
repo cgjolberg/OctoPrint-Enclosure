@@ -5,29 +5,25 @@ import time
 class SerialError(Exception):
     """ Base class for exception """
 
-pin = sys.argv[2]
+#pin = sys.argv[2]
 
 ser = serial.Serial('/dev/ttyACM2', 115200, timeout=5)  # Changed port to '/dev/ttyACM2' and timeout to 5 seconds for consistency
 ser.flush()
-time.sleep(1)
+#time.sleep(1)
 
 def get_serial_value():
     start_time = time.time()
     valid_line_count = 0
 
-    while time.time() - start_time < 5:  # poll for 5 seconds
+    while time.time() - start_time < 5 and valid_line_count < 7:  # poll for 5 seconds
         if ser.in_waiting > 0:
             line = ser.readline().decode('utf-8').strip()
-            print(f"Raw Data: {line}")  # print raw data for debug purposes
-
-            try:
-                temperature, humidity = line.split(',')
-                # Convert the temperature and humidity values to float
-                temperature_float = float(temperature)
-                humidity_float = float(humidity)
-                
+            try:              
                 valid_line_count += 1
-                if valid_line_count == 5:
+                if valid_line_count == 7:
+                    temperature, humidity = line.split(',')
+                    temperature_float = float(temperature)
+                    humidity_float = float(humidity)
                     return temperature_float, humidity_float
             except ValueError:
                 print(f"Unable to process line: {line}")
