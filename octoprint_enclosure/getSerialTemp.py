@@ -5,9 +5,9 @@ import time
 class SerialError(Exception):
     """ Base class for exception """
 
-#pin = sys.argv[2]
+pin = sys.argv[2]
 
-ser = serial.Serial('/dev/ttyACM2', 115200, timeout=5)  # Changed port to '/dev/ttyACM2' and timeout to 5 seconds for consistency
+ser = serial.Serial('/dev/'+pin, 115200, timeout=5)  # Changed port to '/dev/ttyACM2' and timeout to 5 seconds for consistency
 ser.flush()
 #time.sleep(1)
 
