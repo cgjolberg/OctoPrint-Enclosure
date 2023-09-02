@@ -1,13 +1,14 @@
 import serial
 import sys
 import time
+import os
 
 class SerialError(Exception):
     """ Base class for exception """
 
 pin = sys.argv[2]
 # Write the pin value to a file for debugging
-with open('~/scripts/pin_value.txt', 'w') as f:
+with open(os.path.expanduser('~/scripts/pin_value.txt'), 'w') as f:
     f.write(pin)
 
 ser = serial.Serial('/dev/'+pin, 115200, timeout=5)  # Changed port to '/dev/ttyACM2' and timeout to 5 seconds for consistency
